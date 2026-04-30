@@ -38,3 +38,17 @@ class TokenPayload(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+class TaskBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+
+class TaskCreate(TaskBase):
+    pass  
+
+class TaskResponse(TaskBase):
+    id: int
+    owner_id: int
+
+    class Config:
+        from_attributes = True

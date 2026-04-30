@@ -7,7 +7,7 @@ class User(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     username: str = Field(max_length=255)
     email: EmailStr = Field(unique=True)
-    password: str = Field(min_length=8, max_length=15)
+    password: str = Field(min_length=8, max_length=200)
     age: int | None = None
     is_active: bool = True
     created_at: datetime | None = None
