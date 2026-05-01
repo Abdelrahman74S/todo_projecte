@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 from app.database import get_db
-from app.tasks.models import Tasks
-from app.tasks.schemas import TaskCreate, TaskResponse
+from app.tasks.models import Tasks , TaskCreate, TaskResponse, User
 from app.auth.security import get_current_active_user
-from app.tasks.models import User
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 

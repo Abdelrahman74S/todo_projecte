@@ -9,8 +9,7 @@ from pwdlib import PasswordHash
 from sqlmodel import Session, select
 
 from app.database import get_db
-from app.tasks.schemas import TokenPayload
-from app.tasks.models import User
+from app.tasks.models import User ,TokenPayload
 
 SECRET_KEY = "change-me-use-openssl-rand-hex-32"
 ALGORITHM = "HS256"

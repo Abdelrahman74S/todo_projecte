@@ -2,8 +2,7 @@ from fastapi import Depends, HTTPException, APIRouter, status
 from app.database import Session
 from sqlmodel import select 
 from app.database import get_db
-from app.tasks.models import User
-from app.tasks.schemas import Token, UserCreate, UserResponse, UserLogin
+from app.tasks.models import User , UserCreate, UserResponse , UserUpdate , Token
 from app.auth.security import DUMMY_HASH, create_access_token, get_password_hash, verify_password 
 from fastapi.security import OAuth2PasswordRequestForm
 
