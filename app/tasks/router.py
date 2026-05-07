@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException , Annotated
 from sqlmodel import Session, select
 from app.database import get_db
 from app.tasks.models import Tasks , TaskCreate, TaskResponse, User , TaskPatch ,TaskUpdate
 from app.auth.security import get_current_active_user
+from app.tasks.Filter import FilterTask , FilterParams
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -22,18 +23,21 @@ async def create_task(
 @router.get("/my", response_model=list[TaskResponse])
 async def get_my_tasks(
     db: Session = Depends(get_db),
+    filter_query: FilterTask = Depends(),
+    pagination: FilterParams = Depends(),
     current_user: User = Depends(get_current_active_user),
 ):
     statement = select(Tasks).where(Tasks.owner_id == current_user.id)
-    results = db.exec(statement).all()
-    return results
 
-@router.get("/my/done", response_model=list[TaskResponse])
-async def get_my_tasks_done(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
-):
-    statement = select(Tasks).where(Tasks.owner_id == current_user.id, Tasks.done == True).order_by(Tasks.created_at.desc())
+    if filter_query.is_done is not None:
+        statement = statement.where(Tasks.is_done == filter_query.is_done)
+
+    if filter_query.priority is not None:
+        statement = statement.where(Tasks.priority == filter_query.priority)
+
+    
+    statement = statement.offset(pagination.offset).limit(pagination.limit)
+
     results = db.exec(statement).all()
     return results
 

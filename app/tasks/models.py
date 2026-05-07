@@ -64,11 +64,7 @@ class Tasks(TaskBase, table=True):
 class TaskCreate(TaskBase):
     priority: TaskPriority = TaskPriority.MEDIUM
 
-class TaskUpdate(SQLModel):
-    title: str
-    description: str | None = None
-    is_done: bool
-    priority: TaskPriority
+
 
 class TaskResponse(TaskBase):
     id: int
