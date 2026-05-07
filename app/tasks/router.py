@@ -6,7 +6,7 @@ from app.auth.security import get_current_active_user
 from app.tasks.Filter import FilterTask , FilterParams
 from app.tasks.sort import SortTask
 router = APIRouter(prefix="/tasks", tags=["tasks"])
-from sqlalchemy import asc, desc
+from sqlmodel import or_ , asc , desc , col
 
 @router.post("/create", response_model=TaskResponse)
 async def create_task(
@@ -23,13 +23,22 @@ async def create_task(
 
 @router.get("/my", response_model=list[TaskResponse])
 async def get_my_tasks(
+    search: str | None = None,
     db: Session = Depends(get_db),
     filter_query: FilterTask = Depends(),
     pagination: FilterParams = Depends(),
-    sort_query: SortTask = Query(SortTask.desc),
+    sort_query: SortTask = SortTask.desc, 
     current_user: User = Depends(get_current_active_user),
 ):
     statement = select(Tasks).where(Tasks.owner_id == current_user.id)
+
+    if search:
+        statement = statement.where(
+            or_(
+                col(Tasks.title).contains(search),
+                col(Tasks.description).contains(search)
+            )
+        )
 
     if filter_query.is_done is not None:
         statement = statement.where(Tasks.is_done == filter_query.is_done)
@@ -37,12 +46,10 @@ async def get_my_tasks(
     if filter_query.priority is not None:
         statement = statement.where(Tasks.priority == filter_query.priority)
 
-    statement = statement.offset(pagination.offset).limit(pagination.limit)
+    order_func = asc if sort_query == SortTask.asc else desc
+    statement = statement.order_by(order_func(Tasks.id)) 
 
-    if sort_query == SortTask.asc:
-        statement = statement.order_by(asc(Tasks.created_at))
-    else:
-        statement = statement.order_by(desc(Tasks.created_at))
+    statement = statement.offset(pagination.offset).limit(pagination.limit)
 
     results = db.exec(statement).all()
     return results
