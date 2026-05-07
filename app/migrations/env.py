@@ -14,7 +14,7 @@ from alembic import context
 from sqlmodel import SQLModel
 
 from tasks.models import Tasks,User ,TokenPayload  ,UserBase ,UserCreate ,UserUpdate ,UserResponse ,Token ,TaskBase ,TaskCreate ,TaskResponse
-from database import engine
+from database import sqlite_url ,engine
 
 
 # this is the Alembic Config object, which provides
@@ -50,7 +50,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = config.get_main_option("sqlalchemy.url" , sqlite_url)
     context.configure(
         url=url,
         target_metadata=target_metadata,

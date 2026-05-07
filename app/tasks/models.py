@@ -1,7 +1,8 @@
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Optional, List
+from app.tasks.enum import TaskPriority
 
 class UserBase(SQLModel):
     username: str = Field(max_length=255)
@@ -44,18 +45,41 @@ class TaskBase(SQLModel):
     title: str
     description: Optional[str] = None
 
+
 class Tasks(TaskBase, table=True):
     __tablename__ = "user_tasks"
+
+    id: int | None = Field(default=None, primary_key=True)
+
     is_done: bool = Field(default=False)
-    id: Optional[int] = Field(default=None, primary_key=True)
-    owner_id: int = Field(foreign_key="user.id") 
+    priority: TaskPriority = Field(default=TaskPriority.MEDIUM)
+
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime | None = None
+
+    owner_id: int = Field(foreign_key="user.id")
     owner: User = Relationship(back_populates="tasks")
 
 
-
 class TaskCreate(TaskBase):
-    pass
+    priority: TaskPriority = TaskPriority.MEDIUM
+
+class TaskUpdate(SQLModel):
+    title: str
+    description: str | None = None
+    is_done: bool
+    priority: TaskPriority
 
 class TaskResponse(TaskBase):
     id: int
     owner_id: int
+    is_done: bool
+    priority: TaskPriority
+    created_at: datetime
+
+class TaskPatch(SQLModel):
+    title: str | None = None
+    description: str | None = None
+    is_done: bool | None = None
+    priority: TaskPriority | None = None
+    

@@ -21,13 +21,11 @@ async def register(user_create: UserCreate, db: Session = Depends(get_db)):
 
     hashed_password = get_password_hash(user_create.password)
 
-    new_user = User(
-        username=user_create.username,
-        email=user_create.email,
-        password=hashed_password,
-        age=user_create.age
-    )
-
+    user_data = user_create.model_dump()
+    user_data["password"] = hashed_password
+    
+    new_user = User(**user_data)
+    
     db.add(new_user)
     db.commit()
     db.refresh(new_user) 
