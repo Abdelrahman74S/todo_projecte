@@ -65,13 +65,19 @@ class TaskCreate(TaskBase):
     priority: TaskPriority = TaskPriority.MEDIUM
 
 
-
 class TaskResponse(TaskBase):
     id: int
     owner_id: int
     is_done: bool
     priority: TaskPriority
     created_at: datetime
+
+class TaskUpdate(SQLModel):
+    title: str | None = None
+    description: str | None = None
+    is_done: bool | None = None
+    priority: TaskPriority | None = None
+    
 
 class TaskPatch(SQLModel):
     title: str | None = None
