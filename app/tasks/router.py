@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException 
+from fastapi import APIRouter, Depends, HTTPException , Query
 from sqlmodel import Session, select
 from app.database import get_db
 from app.tasks.models import Tasks , TaskCreate, TaskResponse, User , TaskPatch ,TaskUpdate
 from app.auth.security import get_current_active_user
 from app.tasks.Filter import FilterTask , FilterParams
-
+from app.tasks.sort import SortTask
 router = APIRouter(prefix="/tasks", tags=["tasks"])
+from sqlalchemy import asc, desc
 
 @router.post("/create", response_model=TaskResponse)
 async def create_task(
@@ -25,6 +26,7 @@ async def get_my_tasks(
     db: Session = Depends(get_db),
     filter_query: FilterTask = Depends(),
     pagination: FilterParams = Depends(),
+    sort_query: SortTask = Query(SortTask.desc),
     current_user: User = Depends(get_current_active_user),
 ):
     statement = select(Tasks).where(Tasks.owner_id == current_user.id)
@@ -35,8 +37,12 @@ async def get_my_tasks(
     if filter_query.priority is not None:
         statement = statement.where(Tasks.priority == filter_query.priority)
 
-    
     statement = statement.offset(pagination.offset).limit(pagination.limit)
+
+    if sort_query == SortTask.asc:
+        statement = statement.order_by(asc(Tasks.created_at))
+    else:
+        statement = statement.order_by(desc(Tasks.created_at))
 
     results = db.exec(statement).all()
     return results

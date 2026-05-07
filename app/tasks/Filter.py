@@ -4,7 +4,6 @@ from sqlmodel import SQLModel, Field
 class FilterParams(SQLModel):
     limit: int = 100
     offset: int = 0
-    order_by: str = "created_at"
 
 class FilterTask(SQLModel):
     is_done: bool | None = None
