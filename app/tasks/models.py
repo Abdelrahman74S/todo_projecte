@@ -20,16 +20,28 @@ class User(UserBase, table=True):
 class UserCreate(UserBase):
     password: str
 
-class UserUpdate(SQLModel): 
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    password: Optional[str] = None
-    age: Optional[int] = None
+# class UserUpdate(SQLModel): 
+#     username: Optional[str] = None
+#     email: Optional[EmailStr] = None
+#     password: Optional[str] = None
+#     age: Optional[int] = None
 
 class UserResponse(UserBase):
     id: int
     is_active: bool
     created_at: datetime
+
+
+class ProfileUser(SQLModel):
+    username: str
+    email: EmailStr
+    age: Optional[int] = None
+
+class UpdateProfileUser(SQLModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    age: Optional[int] = None
+
 
 # --- Token ---
 class Token(SQLModel):
@@ -84,4 +96,10 @@ class TaskPatch(SQLModel):
     description: str | None = None
     is_done: bool | None = None
     priority: TaskPriority | None = None
-    
+
+
+class ProfileUserResponse(SQLModel):
+    username: str
+    email: EmailStr
+    age: Optional[int] = None
+    tasks: List[TaskResponse] = []

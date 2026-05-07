@@ -2,8 +2,12 @@ from fastapi import Depends, HTTPException, APIRouter, status
 from app.database import Session
 from sqlmodel import select 
 from app.database import get_db
-from app.tasks.models import User , UserCreate, UserResponse , UserUpdate , Token
-from app.auth.security import DUMMY_HASH, create_access_token, get_password_hash, verify_password 
+from app.tasks.models import (
+    User, UserCreate, UserResponse, Token,
+    ProfileUser, UpdateProfileUser,
+    ProfileUserResponse
+)
+from app.auth.security import DUMMY_HASH, create_access_token, get_password_hash, verify_password , get_current_active_user
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -46,3 +50,29 @@ async def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Ses
     access_token = create_access_token(data={"sub": user.email})
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/profile", response_model=ProfileUserResponse, status_code=status.HTTP_200_OK)
+async def profile_user(
+    current_user: User = Depends(get_current_active_user),
+):
+
+    return 
+
+@router.patch("/profile/update",response_model=ProfileUserResponse,status_code=status.HTTP_200_OK
+)
+async def update_user(
+    user_data: UpdateProfileUser,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+
+    update_data = user_data.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
+
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+
+    return current_user

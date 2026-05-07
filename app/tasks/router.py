@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException , Query
+from fastapi import APIRouter, Depends, HTTPException 
 from sqlmodel import Session, select
 from app.database import get_db
 from app.tasks.models import Tasks , TaskCreate, TaskResponse, User , TaskPatch ,TaskUpdate
@@ -7,6 +7,7 @@ from app.tasks.Filter import FilterTask , FilterParams
 from app.tasks.sort import SortTask
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 from sqlmodel import or_ , asc , desc , col
+
 
 @router.post("/create", response_model=TaskResponse)
 async def create_task(
