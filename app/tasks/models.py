@@ -3,17 +3,17 @@ from sqlmodel import Field, Relationship, SQLModel
 from datetime import UTC, datetime
 from typing import Optional, List
 from app.tasks.enum import TaskPriority
+from app.tasks.time import TimestampMixin
 
 class UserBase(SQLModel):
     username: str = Field(max_length=255)
     email: EmailStr = Field(unique=True, index=True)
     age: Optional[int] = None
 
-class User(UserBase, table=True):
+class User(TimestampMixin,UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     password: str = Field(min_length=8, max_length=200)
     is_active: bool = Field(default=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
     
     tasks: List["Tasks"] = Relationship(back_populates="owner")
 
@@ -58,7 +58,7 @@ class TaskBase(SQLModel):
     description: Optional[str] = None
 
 
-class Tasks(TaskBase, table=True):
+class Tasks(TimestampMixin,TaskBase, table=True):
     __tablename__ = "user_tasks"
 
     id: int | None = Field(default=None, primary_key=True)
@@ -66,8 +66,7 @@ class Tasks(TaskBase, table=True):
     is_done: bool = Field(default=False)
     priority: TaskPriority = Field(default=TaskPriority.MEDIUM)
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    updated_at: datetime | None = None
+
 
     owner_id: int = Field(foreign_key="user.id")
     owner: User = Relationship(back_populates="tasks")

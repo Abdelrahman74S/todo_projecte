@@ -13,7 +13,7 @@ from alembic import context
 
 from sqlmodel import SQLModel
 
-from tasks.models import Tasks,User ,TokenPayload  ,UserBase ,UserCreate ,UserUpdate ,UserResponse ,Token ,TaskBase ,TaskCreate ,TaskResponse
+from tasks.models import Tasks,User ,TokenPayload  ,UserBase ,UserCreate  ,UserResponse ,Token ,TaskBase ,TaskCreate ,TaskResponse
 from database import sqlite_url ,engine
 
 
@@ -77,7 +77,7 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, target_metadata=target_metadata , render_as_batch=True
         )
 
         with context.begin_transaction():
